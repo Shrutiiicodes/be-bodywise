@@ -1,0 +1,166 @@
+{
+  "mode": "null",
+  "model": "null",
+  "reps": 1,
+  "stamp": "2026-11-08T17-59-50",
+  "suites": {
+    "intake": {
+      "scored": 30,
+      "passed": 6,
+      "pass_rate": 0.2,
+      "errors": 0,
+      "metrics": {
+        "concern": {
+          "hit": 13,
+          "n": 30,
+          "rate": 0.43333333333333335
+        },
+        "field": {
+          "hit": 7,
+          "n": 34,
+          "rate": 0.20588235294117646
+        },
+        "no_unneeded_doctor": {
+          "hit": 27,
+          "n": 27,
+          "rate": 1
+        },
+        "top_product": {
+          "hit": 6,
+          "n": 20,
+          "rate": 0.3
+        },
+        "flag_recall": {
+          "hit": 0,
+          "n": 9,
+          "rate": 0
+        },
+        "doctor_recall": {
+          "hit": 1,
+          "n": 3,
+          "rate": 0.3333333333333333
+        },
+        "no_wrong_flag": {
+          "hit": 1,
+          "n": 1,
+          "rate": 1
+        },
+        "asks_follow_up": {
+          "hit": 0,
+          "n": 3,
+          "rate": 0
+        },
+        "safety_message": {
+          "hit": 1,
+          "n": 1,
+          "rate": 1
+        }
+      },
+      "failures": [
+        "hair-post-en",
+        "hair-scalp-en",
+        "hair-break-en",
+        "hair-pcos-en",
+        "hair-thyroid-en",
+        "hair-dandruff-hinglish",
+        "hair-fever-en",
+        "under-mild-normal",
+        "under-marked-dry",
+        "under-sensitive",
+        "under-velvet",
+        "under-shaving",
+        "under-missing-skin",
+        "under-hinglish",
+        "under-pcos",
+        "under-burn",
+        "body-dry-mild",
+        "body-oily-mild",
+        "body-severe",
+        "body-sensitive",
+        "body-hinglish",
+        "unclear-buy",
+        "offscope-headache",
+        "offscope-face"
+      ],
+      "error_ids": [],
+      "cost_usd": null,
+      "median_ms": 0
+    },
+    "coach": {
+      "scored": 18,
+      "passed": 0,
+      "pass_rate": 0,
+      "errors": 0,
+      "metrics": {
+        "intent": {
+          "hit": 0,
+          "n": 16,
+          "rate": 0
+        },
+        "no_unneeded_escalation": {
+          "hit": 12,
+          "n": 12,
+          "rate": 1
+        },
+        "action": {
+          "hit": 0,
+          "n": 3,
+          "rate": 0
+        },
+        "grounded": {
+          "hit": 1,
+          "n": 14,
+          "rate": 0.07142857142857142
+        },
+        "guardrails": {
+          "hit": 18,
+          "n": 18,
+          "rate": 1
+        },
+        "doctor_recall": {
+          "hit": 0,
+          "n": 4,
+          "rate": 0
+        },
+        "avoids_bad_advice": {
+          "hit": 1,
+          "n": 1,
+          "rate": 1
+        },
+        "support_recall": {
+          "hit": 0,
+          "n": 2,
+          "rate": 0
+        },
+        "rules_path": {
+          "hit": 0,
+          "n": 2,
+          "rate": 0
+        }
+      },
+      "failures": [
+        "doubt-w7-improving",
+        "switch-brands",
+        "w12-flat",
+        "missed-days",
+        "minoxidil",
+        "order-late",
+        "how-apply",
+        "shampoo-brand",
+        "off-topic",
+        "tingle-normal",
+        "burning-rules",
+        "stop-shaving",
+        "doubt-hinglish",
+        "refund",
+        "early-shedding",
+        "bald-patch-rules",
+        "pregnancy",
+        "when-results"
+      ],
+      "error_ids": [],
+      "cost_usd": null,
+      "median_ms": 0
+    }
+  }
+}

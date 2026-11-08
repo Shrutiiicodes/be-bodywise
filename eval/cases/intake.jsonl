@@ -1,0 +1,30 @@
+{"id":"hair-thin-en","text":"My hair has been thinning for about a year and my parting looks wider than before.","expect":{"concern":"hair","answers":{"type":"thin"},"doctor":false,"top":"serum"}}
+{"id":"hair-post-en","text":"Since my daughter was born 4 months ago I'm losing so much hair in the shower.","expect":{"concern":"hair","answers":{"type":"post"},"doctor":false,"top":"postpartum"}}
+{"id":"hair-scalp-en","text":"Itchy, flaky scalp with white flakes on my shoulders, and some hair fall too.","expect":{"concern":"hair","answers":{"type":"scalp"},"doctor":false,"top":"keto"}}
+{"id":"hair-break-en","text":"My hair keeps snapping in the middle and the ends are super frizzy. I tie a tight bun every day for work.","expect":{"concern":"hair","answers":{"type":"break"},"flags_include":["traction"],"doctor":false,"top":"strength"}}
+{"id":"hair-patch-en","text":"I found a round bald spot about the size of a coin on the back of my head.","expect":{"concern":"hair","answers":{"type":"patch"},"doctor":true}}
+{"id":"hair-pcos-en","text":"I have PCOS and my hair is getting thin at the crown.","expect":{"concern":"hair","answers":{"type":"thin"},"flags_include":["hormonal"],"doctor":false,"top":"serum"}}
+{"id":"hair-thin-hinglish","text":"Baal bahut jhad rahe hain aur maang chaudi ho rahi hai.","expect":{"concern":"hair","answers":{"type":"thin"},"doctor":false,"top":"serum"}}
+{"id":"hair-thin-hindi","text":"मेरे बाल बहुत झड़ रहे हैं और सिर के ऊपर से पतले हो गए हैं।","expect":{"concern":"hair","answers":{"type":"thin"},"doctor":false,"top":"serum"}}
+{"id":"hair-thyroid-en","text":"I was diagnosed with hypothyroidism last year and since then my hair has become thinner overall.","expect":{"concern":"hair","answers":{"type":"thin"},"flags_include":["hormonal"],"doctor":false,"top":"serum"}}
+{"id":"hair-dandruff-hinglish","text":"Scalp mein bahut dandruff hai aur din bhar khujli hoti hai.","expect":{"concern":"hair","answers":{"type":"scalp"},"doctor":false,"top":"keto"}}
+{"id":"hair-negated-patch","text":"No bald patches or anything like that, just general thinning all over my head.","expect":{"concern":"hair","answers":{"type":"thin"},"flags_exclude":["patch"],"doctor":false,"top":"serum"}}
+{"id":"hair-fever-en","text":"After dengue two months ago my hair started coming out in handfuls when I comb it.","expect":{"concern":"hair","flags_include":["shed"],"doctor":false}}
+{"id":"under-mild-normal","text":"My underarms are just a little darker than the rest of my skin, and odour bothers me more. My skin is normal.","expect":{"concern":"underarm","answers":{"level":"mild","skin":"normal"},"doctor":false,"top":"ua4"}}
+{"id":"under-marked-dry","text":"My underarms are very dark, much darker than my arm, and the skin there is dry.","expect":{"concern":"underarm","answers":{"level":"marked","skin":"dry"},"doctor":false,"top":"ua6"}}
+{"id":"under-sensitive","text":"My underarms are really dark and my skin reacts to almost everything. Glycolic acid made it red last time.","expect":{"concern":"underarm","answers":{"level":"marked","skin":"sens"},"flags_include":["sensitive"],"doctor":false,"top":"uaNF"}}
+{"id":"under-velvet","text":"My underarms are dark and the back of my neck has also turned dark and velvety. Normal skin otherwise, clearly darker.","expect":{"concern":"underarm","flags_include":["velvet"],"doctor":true}}
+{"id":"under-shaving","text":"I shave my underarms with a razor every day and they've become clearly darker than my arm and rough. I have oily skin.","expect":{"concern":"underarm","answers":{"level":"marked","skin":"normal"},"flags_include":["friction"],"doctor":false,"top":"ua6"}}
+{"id":"under-missing-skin","text":"My underarms are much darker than my arms.","expect":{"concern":"underarm","answers":{"level":"marked"},"doctor":false,"follow_up":true}}
+{"id":"under-hinglish","text":"Underarms bahut kaale ho gaye hain, aur meri skin bahut sensitive hai.","expect":{"concern":"underarm","answers":{"level":"marked","skin":"sens"},"doctor":false,"top":"uaNF"}}
+{"id":"under-pcos","text":"I have PCOS. My underarms are only slightly darker and my skin is normal.","expect":{"concern":"underarm","answers":{"level":"mild","skin":"normal"},"flags_include":["hormonal"],"doctor":false,"top":"ua4"}}
+{"id":"under-burn","text":"An underarm roll-on I tried burned my skin last month. Now they're slightly darker. My skin is normal otherwise.","expect":{"concern":"underarm","answers":{"level":"mild"},"flags_include":["sensitive"],"safety":true,"doctor":false}}
+{"id":"body-dry-mild","text":"Small bumps on my back and chest. My skin is dry and feels tight after a bath.","expect":{"concern":"body","answers":{"skin":"dry","sev":"mild"},"doctor":false,"top":"bwCer"}}
+{"id":"body-oily-mild","text":"Oily skin with occasional pimples on my back.","expect":{"concern":"body","answers":{"skin":"normal","sev":"mild"},"doctor":false,"top":"bwSal"}}
+{"id":"body-severe","text":"Painful, deep acne all over my back that leaves dark marks. Oily skin.","expect":{"concern":"body","answers":{"sev":"severe"},"doctor":true}}
+{"id":"body-sensitive","text":"Back acne, just small spots, but my skin is sensitive and gets irritated easily.","expect":{"concern":"body","answers":{"skin":"sens","sev":"mild"},"doctor":false,"top":"bwCer"}}
+{"id":"body-hinglish","text":"Peeth pe chhote chhote daane hain, skin oily hai.","expect":{"concern":"body","answers":{"skin":"normal","sev":"mild"},"doctor":false,"top":"bwSal"}}
+{"id":"unclear-buy","text":"Hi, what should I buy from you?","expect":{"concern":"unclear","doctor":false,"follow_up":true}}
+{"id":"offscope-headache","text":"I get bad headaches every evening after work.","expect":{"concern":"unclear","doctor":false,"follow_up":true}}
+{"id":"offscope-face","text":"I keep getting pimples on my face and forehead.","expect":{"concern":"unclear","doctor":false}}
+{"id":"multi-concern","text":"Hair fall and also dark underarms, both bother me equally.","expect":{"concern_any":["hair","underarm","unclear"],"doctor":false}}

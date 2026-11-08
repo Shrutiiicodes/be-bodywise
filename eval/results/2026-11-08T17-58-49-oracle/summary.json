@@ -1,0 +1,127 @@
+{
+  "mode": "oracle",
+  "model": "oracle",
+  "reps": 1,
+  "stamp": "2026-11-08T17-58-49",
+  "suites": {
+    "intake": {
+      "scored": 29,
+      "passed": 27,
+      "pass_rate": 0.9310344827586207,
+      "errors": 1,
+      "metrics": {
+        "concern": {
+          "hit": 29,
+          "n": 29,
+          "rate": 1
+        },
+        "field": {
+          "hit": 31,
+          "n": 32,
+          "rate": 0.96875
+        },
+        "no_unneeded_doctor": {
+          "hit": 25,
+          "n": 26,
+          "rate": 0.9615384615384616
+        },
+        "top_product": {
+          "hit": 18,
+          "n": 19,
+          "rate": 0.9473684210526315
+        },
+        "flag_recall": {
+          "hit": 9,
+          "n": 9,
+          "rate": 1
+        },
+        "doctor_recall": {
+          "hit": 2,
+          "n": 3,
+          "rate": 0.6666666666666666
+        },
+        "no_wrong_flag": {
+          "hit": 0,
+          "n": 1,
+          "rate": 0
+        },
+        "asks_follow_up": {
+          "hit": 3,
+          "n": 3,
+          "rate": 1
+        },
+        "safety_message": {
+          "hit": 1,
+          "n": 1,
+          "rate": 1
+        }
+      },
+      "failures": [
+        "hair-negated-patch",
+        "body-severe"
+      ],
+      "error_ids": [
+        "body-sensitive:harness"
+      ],
+      "cost_usd": null,
+      "median_ms": 0
+    },
+    "coach": {
+      "scored": 18,
+      "passed": 18,
+      "pass_rate": 1,
+      "errors": 0,
+      "metrics": {
+        "intent": {
+          "hit": 16,
+          "n": 16,
+          "rate": 1
+        },
+        "no_unneeded_escalation": {
+          "hit": 12,
+          "n": 12,
+          "rate": 1
+        },
+        "action": {
+          "hit": 3,
+          "n": 3,
+          "rate": 1
+        },
+        "grounded": {
+          "hit": 14,
+          "n": 14,
+          "rate": 1
+        },
+        "guardrails": {
+          "hit": 16,
+          "n": 16,
+          "rate": 1
+        },
+        "doctor_recall": {
+          "hit": 4,
+          "n": 4,
+          "rate": 1
+        },
+        "avoids_bad_advice": {
+          "hit": 1,
+          "n": 1,
+          "rate": 1
+        },
+        "support_recall": {
+          "hit": 2,
+          "n": 2,
+          "rate": 1
+        },
+        "rules_path": {
+          "hit": 2,
+          "n": 2,
+          "rate": 1
+        }
+      },
+      "failures": [],
+      "error_ids": [],
+      "cost_usd": null,
+      "median_ms": 0
+    }
+  }
+}
