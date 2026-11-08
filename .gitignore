@@ -4,3 +4,4 @@ node_modules/
 .vercel/
 eval/results/*
 !eval/results/.gitkeep
+research/
