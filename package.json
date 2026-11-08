@@ -8,9 +8,9 @@
     "node": ">=20"
   },
   "scripts": {
-    "dev": "node scripts/dev.js",
+    "dev": "node --env-file-if-exists=.env scripts/dev.js",
     "test": "node --test",
-    "eval": "node eval/run.js",
+    "eval": "node --env-file-if-exists=.env eval/run.js",
     "eval:check": "node eval/run.js --oracle && node eval/run.js --null"
   },
   "dependencies": {
