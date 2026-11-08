@@ -55,6 +55,18 @@ test('burning adds a safety message and the sensitive flag', () => {
   assert.ok(r.flags.includes('sensitive'));
 });
 
+test('body acne with sensitive skin does not crash and skips the fit check', () => {
+  const r = decide('back acne, sensitive skin', x({ concern: 'body', skin: 'sens', acne_severity: 'mild' }));
+  assert.equal(r.recommendation.picks[0].id, 'bwCer');
+  assert.deepEqual(r.flags, []);
+});
+
+test('severe acne is referred even before skin type is known', () => {
+  const r = decide('painful deep acne on my back', x({ concern: 'body', acne_severity: 'severe' }));
+  assert.ok(r.recommendation.doctor);
+  assert.deepEqual(r.missing, []);
+});
+
 test('flags from another concern are dropped', () => {
   const r = decide('hair fall', x({ hair_type: 'thin', fit_flags: ['velvet', 'hormonal'] }));
   assert.deepEqual(r.flags, ['hormonal']);

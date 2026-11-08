@@ -112,9 +112,10 @@ export function recommend(a) {
     else { r.picks = [[a.level === 'mild' ? 'ua4' : 'ua6', 'Best match'], ['uaNF', 'If you prefer no fragrance']]; }
     r.tips.push('Pause blade shaving if you can. Friction keeps re-darkening the skin.', 'It isn’t a long-lasting deodorant: one reviewer found the scent gone within 2 hours.', 'Dark, velvety skin on the neck or knuckles too? See a doctor first.');
   }
-  if (a.concern === 'body' && a.skin && a.sev) {
-    if (a.sev === 'severe') r.doctor = 'Painful, deep or widespread acne needs a dermatologist. A body wash is meant for mild acne.';
-    else if (a.skin === 'normal') r.picks = [['bwSal', 'Best match'], ['bwCer', 'If your skin feels tight after washing']];
+  // Severe acne is a referral whatever the skin type, so it does not wait for that answer.
+  if (a.concern === 'body' && a.sev === 'severe') r.doctor = 'Painful, deep or widespread acne needs a dermatologist. A body wash is meant for mild acne.';
+  else if (a.concern === 'body' && a.skin && a.sev) {
+    if (a.skin === 'normal') r.picks = [['bwSal', 'Best match'], ['bwCer', 'If your skin feels tight after washing']];
     else { r.picks = [['bwCer', 'Best match']]; if (a.skin === 'sens') r.tips = ['If you see redness, dryness or irritation, use it less often or stop. The brand gives the same advice.']; }
   }
   return r;
@@ -123,7 +124,7 @@ export function recommend(a) {
 export const VERDICT = ['Good fit. Commit to the full 12 weeks.', 'Good to start, with a check.', 'See a doctor first.'];
 
 export function verdict(c, flags) {
-  const f = [...new Set(flags)].filter(k => C[c].flags[k]);
+  const f = [...new Set(flags)].filter(k => C[c]?.flags[k]);
   return { lvl: Math.max(0, ...f.map(k => C[c].flags[k][0])), notes: f.map(k => C[c].flags[k][1]) };
 }
 
@@ -169,6 +170,17 @@ export const RED_FLAGS = {
     message: 'Painful, deep or cystic acne needs a dermatologist. A body wash is meant for mild acne.'
   }
 };
+// A match is ignored only when a negation sits in the three words right before it
+// ("no bald patches", "it doesn't burn"), so "not sure, but there's a bald patch" still counts.
+const NEGATION = /\b(no|not|never|without|nor|zero|nahi|nahin)\b|n['’]t\b/i;
 export function screen(text) {
-  return Object.keys(RED_FLAGS).filter(k => RED_FLAGS[k].re.test(String(text || '')));
+  const s = String(text || '');
+  return Object.keys(RED_FLAGS).filter(k => {
+    const re = new RegExp(RED_FLAGS[k].re.source, 'gi');
+    for (const m of s.matchAll(re)) {
+      const before = s.slice(0, m.index).split(/[.!?;,\n]/).pop().trim().split(/\s+/).slice(-3).join(' ');
+      if (!NEGATION.test(before)) return true;
+    }
+    return false;
+  });
 }

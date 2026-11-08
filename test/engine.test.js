@@ -83,6 +83,8 @@ test('key recommendations match the research', () => {
   assert.equal(recommend({ concern: 'body', skin: 'normal', sev: 'mild' }).picks[0][0], 'bwSal');
   assert.ok(recommend({ concern: 'hair', type: 'patch' }).doctor);
   assert.ok(recommend({ concern: 'body', skin: 'dry', sev: 'severe' }).doctor);
+  assert.ok(recommend({ concern: 'body', sev: 'severe' }).doctor, 'severe acne needs no skin answer');
+  assert.equal(verdict('body', ['sensitive']).lvl, 0, 'concern without a fit check does not crash');
 });
 
 test('trend compares day 0 with the latest check-in', () => {
@@ -102,6 +104,10 @@ test('safety screen catches red flags', () => {
   assert.deepEqual(screen('painful cysts on my back'), ['severe_acne']);
   assert.deepEqual(screen('my hair is thinning at the part'), []);
   assert.deepEqual(screen('slight tingle, otherwise fine'), []);
+  assert.deepEqual(screen('No bald patches, just general thinning'), [], 'negated');
+  assert.deepEqual(screen("it doesn't burn at all"), [], 'negated contraction');
+  assert.deepEqual(screen("I'm not sure why, but there is a round bald patch"), ['patch'], 'negation far away still flags');
+  assert.deepEqual(screen('no rash, but now it is burning'), ['burn'], 'one negated, one not');
   assert.deepEqual(screen(''), []);
   assert.deepEqual(screen(undefined), []);
 });
