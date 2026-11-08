@@ -84,7 +84,47 @@ function vToday() {
   </div>
   <div class="pair">${shotHTML(base(), 'Day 0')}${shotHTML(latest(), latest() === base() ? 'Latest' : `Week ${latest().week}`)}</div></div>
   <div class="card verdict-${v.lvl}"><p class="eyebrow">Fit check</p><h3>${VERDICT[v.lvl]}</h3>${v.notes.length ? `<ul class="notes">${v.notes.map(n => `<li>${esc(n)}</li>`).join('')}</ul>` : ''}<div><button class="btn ghost small" data-nav="fit">Review fit check</button></div></div>`;
-  return html;
+  return html + chatCard();
+}
+
+/* ---------- Ask Day 90 (care assistant) ---------- */
+let chat = { msgs: [], busy: false };
+const QUICK = ['Is it actually working?', 'I missed 3 days. Should I restart?', 'Can I use it with minoxidil?', 'My order hasn’t arrived'];
+const NEXT = { compare_photos: ['Compare my photos', 'progress'], check_in: ['Check in now', 'checkin'], keep_going: ['What to expect next', 'timeline'] };
+
+function chatCard() {
+  const msgs = chat.msgs.map(m => m.role === 'user'
+    ? `<div class="msg me">${esc(m.content)}</div>`
+    : `<div class="msg bot${m.error ? ' err' : ''}">${esc(m.content)}
+        ${m.escalate === 'doctor' ? '<span class="tag stop">Please see a doctor</span>' : ''}
+        ${m.escalate === 'support' ? '<a class="tag" href="https://bebodywise.com/" target="_blank" rel="noopener">Contact Be Bodywise support</a>' : ''}
+        ${NEXT[m.action] ? `<button class="btn ghost small" data-nav="${NEXT[m.action][1]}">${NEXT[m.action][0]}</button>` : ''}</div>`).join('');
+  return `<div class="card" id="chat"><p class="eyebrow">Ask Day 90</p><h3>Doubts, missed days, how to use it, orders</h3>
+    <p class="muted" style="font-size:.9rem">Answers use your own check-ins and the product facts. Photos never leave your phone.</p>
+    ${msgs ? `<div class="msgs" aria-live="polite">${msgs}</div>` : ''}
+    ${chat.busy ? '<p class="muted">Thinking…</p>' : ''}
+    ${chat.msgs.length ? '' : `<div class="chips">${QUICK.map(t => `<button type="button" class="chip" data-ask="${esc(t)}">${esc(t)}</button>`).join('')}</div>`}
+    <form id="askForm" class="row"><label for="askText" class="sr">Your question</label><input id="askText" name="q" maxlength="600" autocomplete="off" placeholder="Type your question" ${chat.busy ? 'disabled' : ''}><button class="btn accent small" type="submit" ${chat.busy ? 'disabled' : ''}>Ask</button></form>
+  </div>`;
+}
+
+function renderChat() {
+  const el = document.getElementById('chat');
+  if (el) { el.outerHTML = chatCard(); document.querySelector('#chat .msgs')?.lastElementChild?.scrollIntoView({ block: 'nearest' }); }
+}
+
+async function ask(text) {
+  const history = chat.msgs.filter(m => !m.error).slice(-6).map(({ role, content }) => ({ role, content }));
+  chat.msgs.push({ role: 'user', content: text });
+  chat.busy = true; renderChat();
+  try {
+    const r = await postJSON('/api/coach', { message: text, concern: S.concern, start: S.start, flags: S.flags || [], history,
+      entries: S.entries.map(({ week, primary, secondary, missed }) => ({ week, primary, secondary, missed })) });
+    chat.msgs.push({ role: 'assistant', content: r.reply, action: r.action, escalate: r.escalate });
+  } catch (e) {
+    chat.msgs.push({ role: 'assistant', content: `${e.message} Meanwhile, the Timeline tab shows what is normal for your week.`, error: true });
+  }
+  chat.busy = false; renderChat();
 }
 
 function measureFields(c, e) {
@@ -252,6 +292,8 @@ function render() {
 document.addEventListener('click', ev => {
   const n = ev.target.closest('[data-nav]');
   if (n) { view = n.dataset.nav; fitEditing = false; render(); scrollTo(0, 0); return; }
+  const q = ev.target.closest('[data-ask]');
+  if (q) { ask(q.dataset.ask); return; }
   const a = ev.target.closest('[data-act]'); if (!a) return;
   const act = a.dataset.act;
   if (act === 'start-own') { D = { concern: null, start: iso(today0()), answers: {}, flags: null }; step = 0; view = 'setup'; }
@@ -291,6 +333,11 @@ function readFit(form, c) {
 document.addEventListener('submit', async ev => {
   ev.preventDefault();
   const f = ev.target, fd = new FormData(f);
+  if (f.id === 'askForm') {
+    const text = String(fd.get('q') || '').trim();
+    if (text) ask(text);
+    return;
+  }
   if (f.id === 'intakeForm') {
     I = { ...I, text: String(fd.get('text')).trim(), state: 'loading', error: '' };
     render();
@@ -318,6 +365,8 @@ document.addEventListener('submit', async ev => {
     const burn = C[S.concern].secondary.warnAt != null && entry.secondary >= C[S.concern].secondary.warnAt;
     photo = null; view = 'today';
     if (save()) toast(burn ? 'Saved. Stinging or burning: stop using it and patch-test before you continue.' : `Week ${w} saved.`);
+    // A note often carries a doubt ("thinking of switching"): answer it right away.
+    if (entry.note) { render(); scrollTo(0, 0); ask(entry.note); return; }
   }
   render(); scrollTo(0, 0);
 });
