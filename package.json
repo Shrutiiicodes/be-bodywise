@@ -1,0 +1,8 @@
+{
+  "name": "day90",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A 90-day companion for Be Bodywise customers: product fit, progress tracking and a grounded AI coach.",
+  "type": "module",
+  "engines": { "node": ">=20" }
+}
