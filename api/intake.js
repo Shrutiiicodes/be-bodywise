@@ -9,7 +9,7 @@ export default async function handler(req, res) {
   if (text.length < 8) return res.status(400).json({ error: 'Tell us a little more: what are you noticing, and where?' });
   if (!configured()) return res.status(503).json({ error: 'The assistant is not set up yet.', kind: 'config' });
   try {
-    const { usage, ...out } = await runIntake(text);
+    const { usage, waitedMs, ...out } = await runIntake(text);
     res.status(200).json(out);
   } catch (err) {
     sendError(res, err);

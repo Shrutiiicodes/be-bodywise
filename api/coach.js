@@ -30,7 +30,7 @@ export default async function handler(req, res) {
       const fixed = ruleReply(message);
       return fixed ? res.status(200).json(fixed) : res.status(503).json({ error: 'The assistant is not set up yet.', kind: 'config' });
     }
-    const { usage, problems, ...out } = await runCoach(input);
+    const { usage, problems, waitedMs, ...out } = await runCoach(input);
     res.status(200).json(out);
   } catch (err) {
     sendError(res, err);
