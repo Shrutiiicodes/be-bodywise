@@ -5,20 +5,22 @@
 //   node eval/run.js --oracle            # gold answers through the graders (should be 100%)
 //   node eval/run.js --null              # trivial baseline (should score low)
 //
-// Live runs call the app's real entry points (runIntake / runCoach) and need ANTHROPIC_API_KEY.
+// Live runs call the app's real entry points (runIntake / runCoach) and need GROQ_API_KEY or ANTHROPIC_API_KEY.
 // Each run writes eval/results/<stamp>-<mode>/{results.jsonl,errors.jsonl,summary.json}.
 import { readFileSync, mkdirSync, writeFileSync, appendFileSync } from 'node:fs';
 import Anthropic from '@anthropic-ai/sdk';
 import { runIntake, decide } from '../lib/intake.js';
 import { runCoach, checkReply, ruleReply } from '../lib/coach.js';
-import { MODEL } from '../lib/claude.js';
+import { MODEL, PROVIDER } from '../lib/llm.js';
 import { iso, today0, DAY, sample } from '../public/engine.js';
+import { configured } from '../lib/llm.js';
 import { gradeIntake, gradeCoach, summarize } from './graders.js';
 
 const args = process.argv.slice(2);
 const flag = (n, d) => { const i = args.indexOf(`--${n}`); return i < 0 ? d : (args[i + 1] && !args[i + 1].startsWith('--') ? args[i + 1] : true); };
 const suite = flag('suite', 'all'), reps = Number(flag('reps', 1)), mode = flag('oracle', false) ? 'oracle' : flag('null', false) ? 'null' : 'live';
-const only = flag('case', null), concurrency = Number(flag('concurrency', 4));
+// Groq's free tier allows only a few requests per minute, so run it one at a time.
+const only = flag('case', null), concurrency = Number(flag('concurrency', PROVIDER === 'groq' ? 1 : 4));
 
 const load = f => readFileSync(new URL(`./cases/${f}`, import.meta.url), 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l));
 
@@ -68,15 +70,15 @@ async function pool(items, n, fn) {
 }
 
 async function main() {
-  if (mode === 'live' && !process.env.ANTHROPIC_API_KEY && !process.env.ANTHROPIC_AUTH_TOKEN) {
-    console.error('Set ANTHROPIC_API_KEY to run the live eval, or use --oracle / --null to test the harness.');
+  if (mode === 'live' && !configured()) {
+    console.error(`No key for provider "${PROVIDER}". Add GROQ_API_KEY or ANTHROPIC_API_KEY to .env, or use --oracle / --null to test the harness.`);
     process.exit(1);
   }
   const stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
   const dir = new URL(`./results/${stamp}-${mode}/`, import.meta.url);
   mkdirSync(dir, { recursive: true });
   const suites = suite === 'all' ? ['intake', 'coach'] : [suite];
-  const summary = { mode, model: mode === 'live' ? MODEL : mode, reps, stamp, suites: {} };
+  const summary = { mode, provider: mode === 'live' ? PROVIDER : mode, model: mode === 'live' ? MODEL : mode, reps, stamp, suites: {} };
 
   for (const kind of suites) {
     const cases = load(`${kind}.jsonl`).filter(c => !only || c.id === only);
@@ -84,13 +86,13 @@ async function main() {
     const rows = await pool(jobs, mode === 'live' ? concurrency : 16, async ({ c, rep }) => {
       try {
         const { out, ms } = await attempt(kind, c);
-        if (mode === 'live' && out.model && !String(out.model).startsWith(MODEL)) throw Object.assign(new Error(`served by ${out.model}`), { cls: 'model_mismatch' });
+        if (mode === 'live' && out.model && !String(out.model).includes(MODEL.split('/').pop())) throw Object.assign(new Error(`served by ${out.model}`), { cls: 'model_mismatch' });
         const g = kind === 'intake' ? gradeIntake(c, out) : gradeCoach(c, out, checkReply);
         const row = { suite: kind, id: c.id, rep, ms, pass: g.pass, checks: g.checks, usage: out.usage, model: out.model, output: { ...out, usage: undefined } };
         appendFileSync(new URL('results.jsonl', dir), JSON.stringify(row) + '\n');
         return row;
       } catch (err) {
-        const cls = err.cls || (err instanceof Anthropic.APIError ? `api_${err.status}` : err.kind ? `model_${err.kind}` : 'harness');
+        const cls = err.cls || (err.status ? `api_${err.status}` : err.kind ? `model_${err.kind}` : 'harness');
         appendFileSync(new URL('errors.jsonl', dir), JSON.stringify({ suite: kind, id: c.id, rep, cls, error: err.message }) + '\n');
         // Refusals and truncations are model outcomes: count them, but never as a pass.
         return { suite: kind, id: c.id, rep, error: cls };
@@ -105,7 +107,8 @@ async function main() {
 }
 
 function printSummary(s) {
-  console.log(`\nDay 90 eval · mode=${s.mode} · model=${s.model} · reps=${s.reps}`);
+  console.log(`
+Day 90 eval · mode=${s.mode} · provider=${s.provider} · model=${s.model} · reps=${s.reps}`);
   for (const [kind, m] of Object.entries(s.suites)) {
     console.log(`\n${kind.toUpperCase()}  ${m.passed}/${m.scored} cases passed (${pct(m.pass_rate)})${m.errors ? ` · ${m.errors} errors` : ''}`);
     for (const [k, v] of Object.entries(m.metrics)) console.log(`  ${k.padEnd(28)} ${v.n ? `${pct(v.rate)}  (${v.hit}/${v.n})` : 'n/a'}`);

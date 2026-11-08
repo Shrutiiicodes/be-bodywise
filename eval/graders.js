@@ -1,6 +1,8 @@
 // Deterministic graders. Every check has a name so results roll up into metrics.
 const PRICES = { // USD per million tokens: input, output, cache read, cache write
   'claude-opus-5-5': [4, 20, 0.2, 5], 'claude-sonnet-5-5': [2, 10, 0.2, 2.5], 'claude-haiku-5-5': [0.1, 0.5, 0.01, 0.125],
+  // Groq paid-plan list prices (the free tier bills nothing).
+  'openai/gpt-oss-120b': [0.15, 0.6, 0, 0], 'openai/gpt-oss-20b': [0.075, 0.3, 0, 0],
 };
 
 export function gradeIntake(c, out) {
