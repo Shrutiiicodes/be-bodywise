@@ -146,3 +146,29 @@ export function trend(c, entries) {
   const d = l.primary - b.primary;
   return { cls: d > 0 ? "up" : d < 0 ? "down" : "flat", delta: d, text: d === 0 ? `Still ${P.short[l.primary]}` : `${P.short[b.primary]} → ${P.short[l.primary]}` };
 }
+
+// Deterministic safety screen for free text (intake descriptions, check-in notes, chat).
+// It runs on the server before and regardless of any model output, so a missed
+// extraction can never hide a red flag. It errs toward flagging: "no burning" still
+// matches, which costs one extra caution message, never a missed one.
+export const RED_FLAGS = {
+  burn: {
+    re: /\b(burn(s|ing|ed|t)?|sting(s|ing)?|blister(s|ed)?|rash(es)?|swell(ing)?|swollen|bleed(s|ing)?|ooz(e|es|ing)|raw skin|hives)\b/i,
+    message: 'Stop using it now. Rinse the area with cool water, and see a doctor if the skin stays sore, swollen or blistered. Patch-test for 48 hours before you try it again.'
+  },
+  patch: {
+    re: /\b(bald (patch|patches|spot|spots)|round (patch|patches|spot|spots)|coin[- ]sized|alopecia)\b/i,
+    message: 'Round bald patches can be alopecia areata, which needs a dermatologist. A topical serum will not treat it.'
+  },
+  velvet: {
+    re: /\b(velvety|velvet[- ]like|dark(ening)?( skin)? (on|around) (my |the )?(neck|knuckles|groin))\b/i,
+    message: 'Dark, velvety skin in several places can signal insulin resistance. Show a doctor before treating it as a cosmetic problem.'
+  },
+  severe_acne: {
+    re: /\b(cyst(s|ic)?|nodule(s)?|boil(s)?|painful (acne|bumps|pimples|spots)|acne (that )?hurts)\b/i,
+    message: 'Painful, deep or cystic acne needs a dermatologist. A body wash is meant for mild acne.'
+  }
+};
+export function screen(text) {
+  return Object.keys(RED_FLAGS).filter(k => RED_FLAGS[k].re.test(String(text || '')));
+}
