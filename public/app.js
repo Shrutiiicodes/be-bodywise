@@ -1,4 +1,5 @@
 import { DAY, esc, parse, today0, iso, fmt, dayOf, weekOf, C, PRODUCTS, FINDER, VERDICT, recommend, verdict, sample, phaseFor, sortEntries, trend as trendOf } from "./engine.js";
+import { sampleArt } from "./sample-art.js";
 const KEY = "day90-v1";
 
 let S, view = 'today', step = 0, D = null, photo = null, askReset = false;
@@ -45,8 +46,12 @@ function track(c, w) {
 }
 
 function shotHTML(e, label) {
-  const inner = e && e.photo ? `<img src="${e.photo}" alt="${esc(label)} photo">` : (S.sample ? 'Sample journey: your photo goes here' : 'No photo this week');
-  return `<div class="shot"><div class="img">${inner}</div><div class="row" style="justify-content:space-between"><b>${esc(label)}</b><span class="muted mono">${e ? fmt(parse(e.date)) : ''}</span></div></div>`;
+  const date = `<div class="row" style="justify-content:space-between"><b>${esc(label)}</b><span class="muted mono">${e ? fmt(parse(e.date)) : ''}</span></div>`;
+  if (e && e.photo) return `<div class="shot"><div class="img"><img src="${e.photo}" alt="${esc(label)} photo"></div>${date}</div>`;
+  // The sample journey shows illustrations so the comparison makes sense at a glance.
+  if (S.sample && S.concern === 'hair' && e) return `<div class="shot"><div class="img art">${sampleArt(e.week)}<span class="sample-tag">Sample</span></div>${date}</div>`;
+  const add = label !== 'Day 0' && !S.sample ? '<button class="btn ghost small" data-nav="checkin">Add a photo at check-in</button>' : '';
+  return `<div class="shot"><div class="img empty"><span>${label === 'Day 0' ? 'No day-0 photo' : 'No photo this week'}</span>${add}</div>${date}</div>`;
 }
 
 const trend = c => trendOf(c, S.entries);

@@ -112,7 +112,11 @@ button:focus-visible, a:focus-visible, input:focus-visible + span, textarea:focu
 .shot { display: grid; gap: 6px; min-width: 0; font-size: .88rem; }
 .shot .img { aspect-ratio: 4 / 5; max-width: 100%; border-radius: 10px; background: var(--page); border: 1px dashed var(--line); overflow: hidden; display: grid; place-items: center; text-align: center; padding: 10px; color: var(--faint); font-size: .8rem; }
 .shot img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.shot .img:has(img) { padding: 0; border: 0; }
+.shot .img:has(img), .shot .img.art { padding: 0; border: 0; }
+.shot .img { position: relative; }
+.shot .img.art svg { width: 100%; height: 100%; display: block; }
+.shot .img.empty { aspect-ratio: auto; min-height: 96px; gap: 8px; align-content: center; }
+.sample-tag { position: absolute; left: 8px; top: 8px; background: rgba(255, 255, 255, .92); color: var(--blue); font-size: .7rem; font-weight: 600; border-radius: 4px; padding: 2px 7px; }
 
 /* ---------- forms: option chips like "Step 1: Select your hair concern" ---------- */
 form { display: grid; gap: 18px; }
