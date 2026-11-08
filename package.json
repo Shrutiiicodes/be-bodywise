@@ -11,5 +11,9 @@
     "dev": "node scripts/dev.js",
     "test": "node --test",
     "eval": "node eval/run.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.6.0",
+    "zod": "^4.6.7"
   }
 }
