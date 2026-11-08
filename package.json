@@ -4,5 +4,12 @@
   "private": true,
   "description": "A 90-day companion for Be Bodywise customers: product fit, progress tracking and a grounded AI coach.",
   "type": "module",
-  "engines": { "node": ">=20" }
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "node scripts/dev.js",
+    "test": "node --test test/",
+    "eval": "node eval/run.js"
+  }
 }
