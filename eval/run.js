@@ -88,7 +88,8 @@ async function main() {
         const { out, ms } = await attempt(kind, c);
         if (mode === 'live' && out.model && !String(out.model).includes(MODEL.split('/').pop())) throw Object.assign(new Error(`served by ${out.model}`), { cls: 'model_mismatch' });
         const g = kind === 'intake' ? gradeIntake(c, out) : gradeCoach(c, out, checkReply);
-        const row = { suite: kind, id: c.id, rep, ms, pass: g.pass, checks: g.checks, usage: out.usage, model: out.model, output: { ...out, usage: undefined } };
+        // Time spent waiting out rate limits is the harness's, not the model's.
+        const row = { suite: kind, id: c.id, rep, ms: ms - (out.waitedMs || 0), waited_ms: out.waitedMs || 0, pass: g.pass, checks: g.checks, usage: out.usage, model: out.model, output: { ...out, usage: undefined } };
         appendFileSync(new URL('results.jsonl', dir), JSON.stringify(row) + '\n');
         return row;
       } catch (err) {
