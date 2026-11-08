@@ -79,7 +79,14 @@ The first oracle run found three real bugs in the rules layer:
 
 All three were fixed in `aadbbaf`.
 
-Live results: see [`eval/RESULTS.md`](eval/RESULTS.md).
+**Live results** (Groq `openai/gpt-oss-120b`, 48 cases × 2 reps):
+
+| Suite | Pass rate | Doctor recall | Unneeded referrals | Median latency |
+|---|---|---|---|---|
+| Intake | **60/60** | 6/6 | 0 | 0.80 s |
+| Ask Day 90 | **35/36** | 8/8 | 0 | 0.77 s |
+
+The first live run scored 29/30 and 16/18. The eval surfaced an unneeded doctor referral and a misread severity; both were fixed in the prompt and confirmed over repeated runs. The full progression, the one remaining miss and the limitations are in [`eval/RESULTS.md`](eval/RESULTS.md).
 
 ```bash
 npm run eval:check                 # validate graders (no API key needed)
