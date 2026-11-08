@@ -170,11 +170,38 @@ function vFit() {
 }
 
 let F = { concern: 'hair', type: 'thin' };
+// Free-text intake state: the model fills the finder; rules still decide.
+let I = { state: 'idle', text: '', result: null, error: '' };
+
+async function postJSON(url, body) {
+  const r = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+  const j = await r.json().catch(() => ({ error: 'Unexpected response from the server.' }));
+  if (!r.ok) throw new Error(j.error || 'Request failed.');
+  return j;
+}
+
+function intakeCard() {
+  const res = I.result, busy = I.state === 'loading';
+  return `<div class="card"><p class="eyebrow">Describe it in your own words</p>
+  <form id="intakeForm" class="stack" style="gap:10px">
+    <label for="intakeText" class="muted">English, Hindi or Hinglish is fine. Please leave out your name and contact details.</label>
+    <textarea id="intakeText" name="text" maxlength="1000" required minlength="8" placeholder="e.g. My hair has been falling a lot since my baby was born, mostly when I wash it.">${esc(I.text)}</textarea>
+    <div class="row"><button class="btn accent" type="submit" ${busy ? 'disabled' : ''}>${busy ? 'Reading…' : 'Find my match'}</button><span class="muted" style="font-size:.85rem">We fill in the questions below for you. You can change any answer.</span></div>
+  </form>
+  ${I.state === 'error' ? `<p class="alert">${esc(I.error)} You can answer the questions below instead.</p>` : ''}
+  ${res ? `<div class="understood"><p><b>What we understood:</b> ${esc(res.summary)}</p>${res.follow_up ? `<p class="ask">${esc(res.follow_up)}</p>` : ''}${res.safety.map(s => `<p class="alert">${esc(s)}</p>`).join('')}</div>` : ''}
+  </div>`;
+}
+
 function vFinder() {
   const q = FINDER[F.concern] ? FINDER[F.concern].qs : [];
   const radios = (name, opts, cur) => `<div class="chips">${opts.map(([v, l]) => `<label><input type="radio" name="${name}" value="${v}" ${cur === v ? 'checked' : ''}><span>${esc(l)}</span></label>`).join('')}</div>`;
-  const r = recommend(F);
+  let r = recommend(F);
   const complete = q.every(x => F[x.id]);
+  // Fit-check findings from the description apply only while the concern still matches.
+  const fit = I.result && I.result.concern === F.concern ? I.result.fit : null;
+  if (complete && fit && fit.lvl === 2) r = { ...r, doctor: r.doctor || fit.notes[0], picks: [] };
+  if (complete && fit && fit.lvl === 1) r = { ...r, tips: [...fit.notes, ...r.tips] };
   const cards = r.picks.map(([id, why]) => {
     const p = PRODUCTS[id];
     return `<div class="prod"><span class="eyebrow">${esc(why)}</span><h3>${esc(p.name)}</h3>
@@ -183,7 +210,9 @@ function vFinder() {
       <div class="row"><a class="btn ghost small" href="${p.url}" target="_blank" rel="noopener">View on bebodywise.com</a>${p.track ? `<button class="btn accent small" data-act="track" data-c="${p.track}">Track it for 90 days</button>` : ''}</div></div>`;
   }).join('');
   return `<div class="card"><p class="eyebrow">Find my product</p><h2>Which Be Bodywise product fits you?</h2>
-  <p class="muted">Matched on your concern and skin type from the brand’s own range, with what real customers said about each one.</p>
+  <p class="muted">Matched on your concern and skin type from the brand’s own range, with what real customers said about each one.</p></div>
+  ${intakeCard()}
+  <div class="card"><p class="eyebrow">Or answer two quick questions</p>
   <form id="finderForm" class="stack" style="gap:16px">
     <fieldset><legend>What do you want to treat?</legend>${radios('concern', Object.entries(FINDER).map(([k, v]) => [k, v.label]), F.concern)}</fieldset>
     ${q.map(x => `<fieldset><legend>${esc(x.q)}</legend>${radios(x.id, x.opts, F[x.id])}</fieldset>`).join('')}
@@ -226,7 +255,7 @@ document.addEventListener('click', ev => {
   const a = ev.target.closest('[data-act]'); if (!a) return;
   const act = a.dataset.act;
   if (act === 'start-own') { D = { concern: null, start: iso(today0()), answers: {}, flags: null }; step = 0; view = 'setup'; }
-  if (act === 'track') { D = { concern: a.dataset.c, start: iso(today0()), answers: {}, flags: null }; step = 1; view = 'setup'; }
+  if (act === 'track') { const c = a.dataset.c; D = { concern: c, start: iso(today0()), answers: {}, flags: I.result && I.result.concern === c && I.result.flags.length ? I.result.flags : null }; step = 1; view = 'setup'; }
   if (act === 'cancel-setup') view = 'today';
   if (act === 'to-baseline') step = 2;
   if (act === 'refit') fitEditing = true;
@@ -259,9 +288,20 @@ function readFit(form, c) {
   return { answers, flags };
 }
 
-document.addEventListener('submit', ev => {
+document.addEventListener('submit', async ev => {
   ev.preventDefault();
   const f = ev.target, fd = new FormData(f);
+  if (f.id === 'intakeForm') {
+    I = { ...I, text: String(fd.get('text')).trim(), state: 'loading', error: '' };
+    render();
+    try {
+      const res = await postJSON('/api/intake', { text: I.text });
+      I = { ...I, state: 'done', result: res };
+      if (res.answers) F = { ...res.answers };
+    } catch (e) { I = { ...I, state: 'error', error: e.message } }
+    render();
+    return;
+  }
   if (f.id === 'concernForm') { D.concern = fd.get('concern'); D.start = fd.get('start'); step = 1; }
   if (f.id === 'fitForm') {
     if (view === 'setup') { Object.assign(D, readFit(f, D.concern)); render(); document.querySelector('.verdict-0, .verdict-1, .verdict-2')?.scrollIntoView({ behavior: 'smooth' }); return; }

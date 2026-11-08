@@ -129,6 +129,9 @@ textarea { width: 100%; min-height: 70px; resize: vertical; }
 .rev { background: var(--bg); border-radius: 12px; padding: 10px 12px; display: grid; gap: 6px; font-size: 0.9rem; }
 .rev .eyebrow { color: var(--muted); }
 a.btn { text-decoration: none; display: inline-block; }
+.understood { background: var(--accent-soft); border-radius: 12px; padding: 12px 14px; display: grid; gap: 8px; }
+.understood .ask { font-weight: 600; }
+button[disabled] { opacity: .6; cursor: progress; }
 .toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 999px; font-size: 0.9rem; max-width: calc(100% - 32px); }
 footer { font-size: 0.8rem; color: var(--muted); display: grid; gap: 8px; border-top: 1px solid var(--line); padding-top: 16px; }
 
