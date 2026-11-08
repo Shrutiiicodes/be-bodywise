@@ -20,8 +20,8 @@ export function gradeIntake(c, out) {
   return { pass: checks.every(x => x.ok), checks };
 }
 
-// Models write typographic dashes (U+2010-2015, minus) and non-breaking spaces; compare plain text.
-const plain = s => String(s || '').replace(/[‐-―−]/g, '-').replace(/[   ]/g, ' ');
+// Models write typographic dashes and quotes (U+2010-2015, minus, U+2018/2019) and non-breaking spaces; compare plain text.
+const plain = s => String(s || '').replace(/[‐-―−]/g, '-').replace(/[‘’]/g, "'").replace(/[   ]/g, ' ');
 
 export function gradeCoach(c, out, checkReply) {
   const e = c.expect, checks = [];
@@ -60,6 +60,6 @@ export function summarize(kind, rows) {
     errors: rows.length - scored.length, metrics,
     failures: [...new Set(scored.filter(r => !r.pass).map(r => r.id))],
     error_ids: [...new Set(rows.filter(r => r.error).map(r => `${r.id}:${r.error}`))],
-    cost_usd: priced ? cost : null, median_ms: ms.length ? ms[Math.floor(ms.length / 2)] : null,
+    cost_usd: priced ? cost : null, median_ms: ms.length ? Math.round(ms[Math.floor(ms.length / 2)]) : null,
   };
 }
